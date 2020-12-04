@@ -140,29 +140,29 @@ class MR_Map ():
         # For every element in the split, if it belongs to a sensical
         # word, emit it as an intermediate key with its count
         for row in data:
-            row_id = (row['house_id'], row['household_id'], row['plug_id'])
-            row_id = '${row_id}'
+            row_id = (str(row['house_id']) + str("") + str(row['household_id']) + str("") + str(row['plug_id']))
+            row_id = str(row_id)
             work = 0
             load = 0
             # check if row_id already exists in intmed list
 
             if row_id not in intmed_key_val_list:
-                if row['property'] == 0:
-                    work += row['value']
+                if int(row['property']) == 0:
+                    work += float(row['value'])
                 else:
-                    load += row['value']
+                    load += float(row['value'])
                 intmed_key_val_list[row_id] = {
                     'work': work,
                     'load': load,
-                    'word_count': 0 if row['property'] == 0 else 1,
-                    'load_count': 0 if row['property'] == 1 else 1
+                    'work_count': 1 if int(row['property']) == 0 else 0,
+                    'load_count': 1 if int(row['property']) == 1 else 0
                 }
             else:
-                if row['property'] == 0:
-                    intmed_key_val_list[row_id]['work'] += row['value']
-                    intmed_key_val_list[row_id]['word_count'] += 1
+                if int(row['property']) == 0:
+                    intmed_key_val_list[row_id]['work'] += float(row['value'])
+                    intmed_key_val_list[row_id]['work_count'] += 1
                 else:
-                    intmed_key_val_list[row_id]['load'] += row['value']
+                    intmed_key_val_list[row_id]['load'] += float(row['value'])
                     intmed_key_val_list[row_id]['load_count'] += 1
 
         # now we send the results of the map phase to the master

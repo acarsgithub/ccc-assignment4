@@ -125,14 +125,17 @@ class MR_Reduce ():
             total_work_count = 0
             total_load = 0
             total_load_count = 0
+            average_work = 0
+            average_load = 0
             for item in tuple_list: 
-                total_work += item[1]
-                total_work_count += item[2]
-                total_load  += item[3]
-                total_load_count += item[4]
-
-            average_work = total_work/total_work_count
-            average_load = total_load/total_load_count
+                total_work += float(item[1])
+                total_work_count += int(item[2])
+                total_load  += float(item[3])
+                total_load_count += int(item[4])
+            if total_work_count != 0:
+                average_work = float(total_work/total_work_count)
+            if total_load_count != 0:
+                average_load = float(total_load/total_load_count)
 
             # The [0]'th entry of each of the entries of the second level
             # list is the unique word. We just use the first one and dump it

@@ -100,6 +100,7 @@ def barrier_sink (args):
 
                 # write all the entries into the csv file
                 for item in map_resp:
+                    item = str(item)
                     map_file.write (
                         item + str (",") 
                         + str(map_resp[item]['work']) + str (",") 
@@ -119,7 +120,7 @@ def barrier_sink (args):
 
                 # write the csv entries to the file.
                 for j in range (len(reduce_resp)):
-                    reduce_file.write (reduce_resp[j]['token'] + str (",") + str(reduce_resp[j]['val']) + "\n")
+                    reduce_file.write (str(reduce_resp[j]['id']) + str (",") + str(reduce_resp[j]['average_work']) + str (",") + str(reduce_resp[j]['average_load']) + "\n")
                     
                 # close the file
                 reduce_file.close ()
@@ -368,7 +369,15 @@ class MR_Framework ():
                 data = []
                 for j in range(chunk_size):
                     row = db.get(str(locn2read))
-                    data.append(row)
+                    realRow = {}
+                    realRow['_id'] = locn2read
+                    realRow['house_id'] = row['house_id']
+                    realRow['household_id'] = row['household_id']
+                    realRow['plug_id'] = row['plug_id']
+                    realRow['value'] = row['value']
+                    realRow['property'] = row['property']
+                    print('Real row: ' + str(realRow))
+                    data.append(realRow)
                     locn2read += 1
 
                 # # seek the location in the file to read from
@@ -468,11 +477,13 @@ class MR_Framework ():
         for i in range (self.M):
             # open the CVS file created by map job
             csvfile = csv.reader (open ("Map"+str(i)+".csv", "r"), delimiter=",")
-            
+            rows2 = []
+            for row in csvfile:
+                rows2.append(row)
             # get the sorted list of entries from our csv file using
             # column 1 (0-based indexing) as the key to sort on
             # and we use traditional alphabetic order
-            energylist = sorted (csvfile, key=operator.itemgetter (0))
+            energylist = sorted (rows2, key=operator.itemgetter (0))
 
             # Now group all entries by the unique identified words and perform
             # local combiner optimization (because it is addition, which is
@@ -499,11 +510,10 @@ class MR_Framework ():
                 work_count = 0
                 load_count = 0
                 for entry in groups[j]:
-                    data = entry.split(',')
-                    work += data[1]
-                    work_count += data[2]
-                    load += data[3]
-                    load_count += data[4]
+                    work += float(entry[1])
+                    work_count += int(entry[2])
+                    load += float(entry[3])
+                    load_count += int(entry[4])
                 
                 tempfile.write (
                     str(work) + str(',') +
